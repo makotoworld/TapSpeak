@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSettings } from '../context/SettingsContext';
 import { TTSProviderType, Voice } from '../lib/tts/types';
 import { getTTSProvider } from '../lib/tts/factory';
-import { X, Settings as SettingsIcon, Save, Loader2 } from 'lucide-react';
+import { X, Settings as SettingsIcon, Save, Loader2, Info } from 'lucide-react';
 import styles from './SettingsModal.module.css';
 
 export function SettingsModal() {
@@ -73,9 +73,20 @@ export function SettingsModal() {
                             className={styles.select}
                         >
                             <option value="period_newline">Period & Newline (Recommended)</option>
-                            <option value="period">Period Only</option>
+                            <option value="period">
+                                Period Only{settings.activeProvider === 'vertex' ? ' ⭐ Vertex AI推奨' : ''}
+                            </option>
                             <option value="newline">Newline Only</option>
                         </select>
+
+                        {settings.activeProvider === 'vertex' && settings.splitDelimiter !== 'period' && (
+                            <div className={styles.recommendation}>
+                                <Info size={16} />
+                                <span>
+                                    Vertex AIは文（sentence）単位で制限があるため、"Period Only"を推奨します。
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Provider Selection */}

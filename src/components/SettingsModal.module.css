@@ -46,8 +46,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .header {
@@ -175,4 +182,27 @@
 
 .saveButton:hover {
   background: #1d4ed8;
+}
+
+.recommendation {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.recommendation svg {
+  color: #3b82f6;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.recommendation span {
+  font-size: 0.75rem;
+  color: #93c5fd;
+  line-height: 1.4;
 }

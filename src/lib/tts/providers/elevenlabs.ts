@@ -5,16 +5,27 @@ export class ElevenLabsProvider implements TTSProvider {
     name = 'ElevenLabs';
 
     async speak(text: string, apiKey: string, voiceId: string = '21m00Tcm4TlvDq8ikWAM'): Promise<ArrayBuffer> {
-        const client = new ElevenLabsClient({ apiKey });
-        const audio = await client.textToSpeech.convert(voiceId, {
-            text,
-            modelId: 'eleven_monolingual_v1',
-            outputFormat: 'mp3_44100_128',
-        });
+        try {
+            const client = new ElevenLabsClient({ apiKey });
+            const audio = await client.textToSpeech.convert(voiceId, {
+                text,
+                modelId: 'eleven_monolingual_v1',
+                outputFormat: 'mp3_44100_128',
+            });
 
-        // The SDK returns a ReadableStream. We can use the Response API to convert it to ArrayBuffer easily.
-        const response = new Response(audio as any);
-        return await response.arrayBuffer();
+            // The SDK returns a ReadableStream. We can use the Response API to convert it to ArrayBuffer easily.
+            const response = new Response(audio as any);
+            return await response.arrayBuffer();
+        } catch (error: any) {
+            // Check if it's a character limit issue
+            if (error.message?.includes('character') || error.message?.includes('limit') || error.message?.includes('too long')) {
+                throw new Error(
+                    `ElevenLabs Error: Text is too long. ElevenLabs has a limit of 3,000 characters. ` +
+                    `Your text is ${text.length} characters. Please reduce by ${text.length - 3000} characters.`
+                );
+            }
+            throw new Error(`ElevenLabs Error: ${error.message || 'Unknown error'}`);
+        }
     }
 
     async getVoices(apiKey: string): Promise<Voice[]> {

@@ -28,7 +28,17 @@ export class VertexAIProvider implements TTSProvider {
 
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(`Vertex AI Error: ${error.error}`);
+            const errorMessage = error.error || 'Unknown error';
+
+            // Check if it's a character limit issue
+            if (errorMessage.includes('too long') || errorMessage.includes('exceeds')) {
+                throw new Error(
+                    `Vertex AI Error: Text is too long. Vertex AI Neural2 voices have a practical limit of about 500 characters. ` +
+                    `Your text is ${text.length} characters. Please reduce by ${text.length - 500} characters.`
+                );
+            }
+
+            throw new Error(`Vertex AI Error: ${errorMessage}`);
         }
 
         return await response.arrayBuffer();
