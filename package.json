@@ -12,7 +12,7 @@
     "@elevenlabs/elevenlabs-js": "^2.24.1",
     "@google-cloud/text-to-speech": "^6.4.0",
     "lucide-react": "^0.554.0",
-    "next": "16.0.3",
+    "next": "16.0.10",
     "openai": "^6.9.1",
     "react": "19.2.0",
     "react-dom": "19.2.0"
