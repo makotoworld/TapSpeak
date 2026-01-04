@@ -90,6 +90,8 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         });
     };
 
+
+
     const updateVoice = (provider: TTSProviderType, voiceId: string) => {
         setSettings(prev => {
             const updated = {

@@ -1,6 +1,7 @@
 export interface TTSProvider {
   name: string;
   speak(text: string, apiKey: string, voiceId?: string): Promise<ArrayBuffer>;
+  stream?(text: string, apiKey: string, voiceId?: string): Promise<ReadableStream<Uint8Array>>;
   getVoices(apiKey: string): Promise<Voice[]>;
 }
 

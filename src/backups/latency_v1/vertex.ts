@@ -1,9 +1,19 @@
 import { TTSProvider, Voice } from '../types';
 
+// Vertex AI (Google Cloud TTS) usually requires a Service Account Key JSON.
+// Passing a raw API key is possible for some Google APIs but TTS usually needs OAuth2 or Service Account.
+// However, we can use the API Key if restricted properly, or we might need to pass the JSON content.
+// The user said "API Key setting".
+// For Google Cloud, it's often an API Key (string) for simple access if enabled.
+// Let's assume API Key for now. If we need Service Account JSON, the UI will need a text area.
+// We will use the REST API directly to avoid Node.js specific gRPC deps in the browser if possible,
+// or use a Server Action.
+
 export class VertexAIProvider implements TTSProvider {
     name = 'Vertex AI';
 
     async speak(text: string, apiKey: string, voiceId: string = 'en-US-Neural2-A'): Promise<ArrayBuffer> {
+        // Using Internal API Route to avoid exposing credentials and handle Service Account auth
         const response = await fetch('/api/tts/vertex', {
             method: 'POST',
             headers: {
@@ -12,7 +22,7 @@ export class VertexAIProvider implements TTSProvider {
             body: JSON.stringify({
                 text,
                 voiceId,
-                credentials: apiKey,
+                credentials: apiKey, // apiKey here is actually the JSON string
             }),
         });
 
@@ -20,6 +30,7 @@ export class VertexAIProvider implements TTSProvider {
             const error = await response.json();
             const errorMessage = error.error || 'Unknown error';
 
+            // Check if it's a character limit issue
             if (errorMessage.includes('too long') || errorMessage.includes('exceeds')) {
                 throw new Error(
                     `Vertex AI Error: Text is too long. Vertex AI Neural2 voices have a practical limit of about 500 characters. ` +
@@ -31,31 +42,6 @@ export class VertexAIProvider implements TTSProvider {
         }
 
         return await response.arrayBuffer();
-    }
-
-    async stream(text: string, apiKey: string, voiceId: string = 'en-US-Neural2-A'): Promise<ReadableStream<Uint8Array>> {
-        const response = await fetch('/api/tts/vertex', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                text,
-                voiceId,
-                credentials: apiKey,
-            }),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(`TTS Streaming Error: ${error.error || 'Unknown error'}`);
-        }
-
-        if (!response.body) {
-            throw new Error('No response body for streaming');
-        }
-
-        return response.body;
     }
 
     async getVoices(apiKey: string): Promise<Voice[]> {

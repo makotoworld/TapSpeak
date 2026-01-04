@@ -8,7 +8,7 @@ import { X, Settings as SettingsIcon, Save, Loader2, Info } from 'lucide-react';
 import styles from './SettingsModal.module.css';
 
 export function SettingsModal() {
-    const { settings, updateSettings, updateApiKey, updateVoice, updateSplitDelimiter } = useSettings();
+    const { settings, updateSettings, updateApiKey, updateGeminiApiKey, updateVoice, updateSplitDelimiter } = useSettings();
     const [isOpen, setIsOpen] = useState(false);
     const [voices, setVoices] = useState<Voice[]>([]);
     const [isLoadingVoices, setIsLoadingVoices] = useState(false);

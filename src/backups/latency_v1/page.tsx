@@ -132,130 +132,34 @@ export default function Home() {
       }
 
       const apiStartTime = performance.now();
+      const audioBuffer = await provider.speak(word, apiKey, voiceId);
+      const apiEndTime = performance.now();
 
-      // Use Gemini-TTS streaming if available
-      if (provider.stream) {
-        console.log('Using Gemini-TTS streaming');
+      // Decode audio data
+      const decodedBuffer = await ctx.decodeAudioData(audioBuffer);
 
-        const stream = await provider.stream(word, apiKey, voiceId);
-        const reader = stream.getReader();
+      const source = ctx.createBufferSource();
+      source.buffer = decodedBuffer;
+      source.connect(ctx.destination);
 
-        let firstByteReceived = false;
-        const sampleRate = 24000;
-        const chunks: Int16Array[] = [];
+      const audioStartTime = performance.now();
+      source.start(0);
 
-        let firstByteTime = 0;
+      const apiLatency = apiEndTime - apiStartTime;
+      const processingLatency = audioStartTime - apiEndTime;
+      const totalLatency = audioStartTime - clickTime;
 
-        const processStream = async () => {
-          try {
-            while (true) {
-              const { done, value } = await reader.read();
+      setLatencyMetrics({
+        apiLatency,
+        processingLatency,
+        totalLatency
+      });
 
-              if (!firstByteReceived && value) {
-                firstByteReceived = true;
-                firstByteTime = performance.now();
-                const apiLatency = firstByteTime - apiStartTime;
+      source.onended = () => {
+        setPlayingWordIndex(null);
+        setIsLoading(false);
+      };
 
-                console.log('First chunk received! API latency:', apiLatency, 'ms');
-
-                setLatencyMetrics({
-                  apiLatency,
-                  processingLatency: 0,
-                  totalLatency: apiLatency
-                });
-              }
-
-              if (done) {
-                console.log('Stream complete, total chunks:', chunks.length);
-
-                // Concatenate all PCM chunks
-                const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
-                const concatenated = new Int16Array(totalLength);
-                let offset = 0;
-                for (const chunk of chunks) {
-                  concatenated.set(chunk, offset);
-                  offset += chunk.length;
-                }
-
-                // Convert to Float32Array
-                const float32 = new Float32Array(concatenated.length);
-                for (let i = 0; i < concatenated.length; i++) {
-                  float32[i] = concatenated[i] / 32768.0;
-                }
-
-                // Create AudioBuffer and play
-                const audioBuffer = ctx.createBuffer(1, float32.length, sampleRate);
-                audioBuffer.getChannelData(0).set(float32);
-
-                const source = ctx.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(ctx.destination);
-                source.start(0);
-
-                const audioStartTime = performance.now();
-                const totalLatency = audioStartTime - clickTime;
-                const processingLatency = audioStartTime - firstByteTime;
-
-                setLatencyMetrics({
-                  apiLatency: firstByteTime - apiStartTime,
-                  processingLatency,
-                  totalLatency
-                });
-
-                source.onended = () => {
-                  setPlayingWordIndex(null);
-                  setIsLoading(false);
-                };
-
-                break;
-              }
-
-              if (value && value.byteLength > 0) {
-                console.log('Received PCM chunk:', value.byteLength, 'bytes');
-                const int16Array = new Int16Array(value.buffer, value.byteOffset, value.byteLength / 2);
-                chunks.push(int16Array);
-              }
-            }
-          } catch (e) {
-            console.error('Stream processing error:', e);
-            setError('Failed to process audio stream');
-            setPlayingWordIndex(null);
-            setIsLoading(false);
-          }
-        };
-
-        processStream();
-      } else {
-        // Fallback to non-streaming
-        console.log('Using non-streaming playback');
-        const audioBuffer = await provider.speak(word, apiKey, voiceId);
-        const apiEndTime = performance.now();
-
-        // Decode audio data
-        const decodedBuffer = await ctx.decodeAudioData(audioBuffer);
-
-        const source = ctx.createBufferSource();
-        source.buffer = decodedBuffer;
-        source.connect(ctx.destination);
-
-        const audioStartTime = performance.now();
-        source.start(0);
-
-        const apiLatency = apiEndTime - apiStartTime;
-        const processingLatency = audioStartTime - apiEndTime;
-        const totalLatency = audioStartTime - clickTime;
-
-        setLatencyMetrics({
-          apiLatency,
-          processingLatency,
-          totalLatency
-        });
-
-        source.onended = () => {
-          setPlayingWordIndex(null);
-          setIsLoading(false);
-        };
-      }
     } catch (err: any) {
       console.error('TTS Error:', err);
       setError(err.message || 'Failed to play audio');

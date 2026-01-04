@@ -9,7 +9,7 @@ export class ElevenLabsProvider implements TTSProvider {
             const client = new ElevenLabsClient({ apiKey });
             const audio = await client.textToSpeech.convert(voiceId, {
                 text,
-                modelId: 'eleven_monolingual_v1',
+                modelId: 'eleven_turbo_v2_5',
                 outputFormat: 'mp3_44100_128',
             });
 

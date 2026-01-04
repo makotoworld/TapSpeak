@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing text or credentials' }, { status: 400 });
         }
 
+        // Parse credentials if it's a string
         const parsedCredentials = typeof credentials === 'string' ? JSON.parse(credentials) : credentials;
 
         const client = new TextToSpeechClient({
@@ -18,10 +19,7 @@ export async function POST(req: NextRequest) {
 
         const [response] = await client.synthesizeSpeech({
             input: { text },
-            voice: {
-                languageCode: voiceId.split('-').slice(0, 2).join('-'),
-                name: voiceId
-            },
+            voice: { languageCode: voiceId.split('-').slice(0, 2).join('-'), name: voiceId },
             audioConfig: { audioEncoding: 'MP3' },
         });
 
@@ -34,12 +32,8 @@ export async function POST(req: NextRequest) {
                 'Content-Type': 'audio/mpeg',
             },
         });
-
     } catch (error: any) {
         console.error('Vertex AI TTS Error:', error);
-        return NextResponse.json({
-            error: error.message || 'Internal Server Error',
-            details: error.toString()
-        }, { status: 500 });
+        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     }
 }
