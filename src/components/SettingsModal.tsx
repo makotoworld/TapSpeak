@@ -100,6 +100,7 @@ export function SettingsModal() {
                             <option value="openai">OpenAI</option>
                             <option value="elevenlabs">ElevenLabs</option>
                             <option value="vertex">Google Vertex AI</option>
+                            <option value="gemini">Gemini</option>
                         </select>
                     </div>
 
@@ -125,6 +126,17 @@ export function SettingsModal() {
                                 value={settings.apiKeys.elevenlabs}
                                 onChange={(e) => updateApiKey('elevenlabs', e.target.value)}
                                 placeholder="..."
+                                className={styles.input}
+                            />
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.subLabel}>Gemini API Key</label>
+                            <input
+                                type="password"
+                                value={settings.apiKeys.gemini}
+                                onChange={(e) => updateApiKey('gemini', e.target.value)}
+                                placeholder="AIza..."
                                 className={styles.input}
                             />
                         </div>

@@ -8,6 +8,7 @@ interface Settings {
         openai: string;
         elevenlabs: string;
         vertex: string;
+        gemini: string;
     };
     activeProvider: TTSProviderType;
     // Map provider name to selected voice ID
@@ -28,12 +29,14 @@ const defaultSettings: Settings = {
         openai: '',
         elevenlabs: '',
         vertex: '',
+        gemini: '',
     },
     activeProvider: 'openai',
     voiceSettings: {
         openai: 'alloy',
         elevenlabs: '21m00Tcm4TlvDq8ikWAM', // Rachel
         vertex: 'en-US-Neural2-A',
+        gemini: 'Kore',
     },
     splitDelimiter: 'period_newline',
 };

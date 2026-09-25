@@ -12,7 +12,7 @@ export interface Voice {
   gender?: string;
 }
 
-export type TTSProviderType = 'vertex' | 'elevenlabs' | 'openai';
+export type TTSProviderType = 'vertex' | 'elevenlabs' | 'openai' | 'gemini';
 
 /**
  * Character limits for each TTS provider
@@ -21,6 +21,7 @@ export const CHARACTER_LIMITS: Record<TTSProviderType, number> = {
   openai: 4096,      // OpenAI TTS API limit
   elevenlabs: 3000,  // ElevenLabs Eleven v3 Alpha limit
   vertex: 500,       // Practical limit for Vertex AI Neural2 voices
+  gemini: 8000,      // Gemini 3.8 Flash TTS handles long inputs; generous practical limit
 };
 
 /**

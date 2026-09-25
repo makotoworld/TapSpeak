@@ -2,11 +2,13 @@ import { TTSProvider, TTSProviderType } from './types';
 import { OpenAIProvider } from './providers/openai';
 import { ElevenLabsProvider } from './providers/elevenlabs';
 import { VertexAIProvider } from './providers/vertex';
+import { GeminiProvider } from './providers/gemini';
 
 const providers: Record<TTSProviderType, TTSProvider> = {
     openai: new OpenAIProvider(),
     elevenlabs: new ElevenLabsProvider(),
     vertex: new VertexAIProvider(),
+    gemini: new GeminiProvider(),
 };
 
 export function getTTSProvider(type: TTSProviderType): TTSProvider {
